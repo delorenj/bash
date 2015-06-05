@@ -9,10 +9,13 @@ public class SimpleMove : MonoBehaviour {
 	void Update () {
 		var move = new Vector3 (Input.GetAxis ("Horizontal"), 0, Input.GetAxis ("Vertical"));
 		if (Input.GetKey ("left shift")) {
-			move.y = move.z;
-			move.z = 0;
+			Camera.main.orthographicSize += move.z * 0.01f * speed;
+			Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize, 3.5f, 11.5f);
+			print ("orthosize" + Camera.main.orthographicSize);
+		} else {
+			transform.position += move * speed * Time.deltaTime;
 		}
 
-		transform.position += move * speed * Time.deltaTime;
+
 	}
 }
