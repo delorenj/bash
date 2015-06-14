@@ -16,6 +16,8 @@ public class GridObject : MonoBehaviour {
 	// The grid object's current state
 	private string state;
 
+	private ToggleDebugPane dp;
+
 	// Nested class that contains all possible states for this grid object
 	public class GridObjectState
 	{
@@ -26,6 +28,8 @@ public class GridObject : MonoBehaviour {
 	}
 
 	public void Awake() {
+		GameObject go = GameObject.FindGameObjectWithTag ("GameController");
+		dp = go.GetComponent<ToggleDebugPane> ();
 		this.state = GridObjectState.active;
 	}
 
@@ -45,11 +49,10 @@ public class GridObject : MonoBehaviour {
 		RaycastHit hit;
 
 		if (Physics.Raycast (ray, out hit)) {
-//			ToggleDebugPane dp = GameObject.FindGameObjectWithTag("DebugPane").GetComponent<ToggleDebugPane>();
-//			if (dp.active) {
+			if (dp.active) {
 				Debug.DrawLine (ray.origin, hit.point);
 				Debug.Log ("Hit Point: " + hit.point);
-//			}
+			}
 			return hit.point;
 		} else {
 			return Vector3.zero;
