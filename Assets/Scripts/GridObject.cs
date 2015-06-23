@@ -3,13 +3,15 @@ using System.Collections;
 
 public class GridObject : MonoBehaviour {
 	// The underlying game object that is to be placed on the grid
-	public GameObject gameObject;
 
 	// How many grid units this object consumes in the X dimension
-	public int unitSpanX = 1;
+	public int unitSpanX;
 
 	// How many grid units this object consumes in the Y dimension
-	public int unitSpanY = 1;
+	public int unitSpanY;
+		
+	private float offset = 2.0f;
+	private float gridSize = 2.0f;
 
 	private Vector3 currentGridSquare;
 
@@ -28,8 +30,7 @@ public class GridObject : MonoBehaviour {
 	}
 
 	public void Awake() {
-		GameObject go = GameObject.FindGameObjectWithTag ("GameController");
-		dp = go.GetComponent<ToggleDebugPane> ();
+		dp = GameObject.FindGameObjectWithTag ("GameController").GetComponent<ToggleDebugPane> ();
 		this.state = GridObjectState.active;
 	}
 
@@ -38,9 +39,23 @@ public class GridObject : MonoBehaviour {
 
 		if (placePoint != Vector3.zero) {
 			if(state == GridObjectState.moving) {
-				gameObject.transform.position = placePoint;
+				transform.position = placePoint;
 			}
 		}
+	}
+
+	public void setState(string state) {
+		this.state = state;
+	}
+
+	public void SetMoving ()
+	{
+		GameObject[] gos = GameObject.FindGameObjectsWithTag ("GridObject");
+		foreach (GameObject go in gos) {
+			GridObject obj = go.GetComponent<GridObject>();
+			obj.setState(GridObject.GridObjectState.inactive);
+		}
+		this.setState (GridObject.GridObjectState.moving);
 	}
 
 	Vector3 GetGridSquareAnchorPoint (Vector3 mousePosition)
@@ -53,18 +68,17 @@ public class GridObject : MonoBehaviour {
 				Debug.DrawLine (ray.origin, hit.point);
 				Debug.Log ("Hit Point: " + hit.point);
 			}
-			return hit.point;
+			Vector3 V = hit.point;
+			V -= Vector3.one * offset;
+			V /= gridSize;
+			V = new Vector3(Mathf.Round(V.x), Mathf.Round(V.y), Mathf.Round(V.z));
+			V *= gridSize;
+			V += Vector3.one * offset;
+			//return new Vector3(Mathf.Round(hit.point.x), Mathf.Round (hit.point.y), Mathf.Round (hit.point.z)) * unitSpanX;
+			return V;
 		} else {
 			return Vector3.zero;
 		}
 	}
-
-	public void createObject() {
-		Vector3 createPoint = Input.mousePosition;
-		Debug.Log ("Clicked: " + createPoint);
-		Instantiate (this.gameObject, createPoint, Quaternion.identity);
-		state = GridObjectState.moving;
-	}
-
 }
 
